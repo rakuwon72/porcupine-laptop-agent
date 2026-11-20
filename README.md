@@ -106,4 +106,8 @@ add_password.py, add_profile.py, check_manifest.py, inspect_window.py, generate_
 - Ghost mode makes Edge flash to the front briefly (your window is put back immediately).
 - No automated test suite is included yet.
 
+## License
+
+[MIT](LICENSE)
+
 See [`docs/DETAILS.md`](docs/DETAILS.md) for the full guide to each feature.
