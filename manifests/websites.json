@@ -1,0 +1,147 @@
+{
+  "_comment": "Websites the agent may open. 'aliases' are other names the user might say. GHOST MODE: steps marked foreground_only are skipped, and steps marked ghost_only are used, when an action can run silently (no mouse/keyboard) - see GHOST_MODE in agent/config.py. TIP for login forms: never CLICK the password box after typing the username - the browser's saved-login dropdown covers it. Press escape then tab instead. 'window_title' + 'actions' let the agent click and type inside the page (same format as apps.json; run python inspect_window.py followed by part of the window title, with the page open, to get exact control names). 'search_url' is optional: if present the agent can search that site directly ({query} is replaced with the search text). The agent never logs in for you - sign in once in your browser and it stays signed in.",
+  "websites": [
+    {
+      "name": "YouTube",
+      "description": "Video streaming and search",
+      "url": "https://www.youtube.com",
+      "search_url": "https://www.youtube.com/results?search_query={query}"
+    },
+    {
+      "name": "Google Drive",
+      "aliases": ["Drive", "GDrive"],
+      "description": "Cloud file storage",
+      "url": "https://drive.google.com",
+      "search_url": "https://drive.google.com/drive/search?q={query}"
+    },
+    {
+      "name": "Gmail",
+      "aliases": ["Mail", "Email", "Google Mail"],
+      "description": "Personal email (the user's 'Mail')",
+      "url": "https://mail.google.com",
+      "search_url": "https://mail.google.com/mail/u/0/#search/{query}"
+    },
+    {
+      "name": "IITD Webmail",
+      "aliases": ["Webmail", "IITD Mail", "College Mail"],
+      "description": "IIT Delhi college email (the user must already be signed in)",
+      "url": "https://webmail.iitd.ac.in",
+      "window_title": ".*IITD Webmail",
+      "actions": {
+        "autofill_login": {
+          "method": "sequence",
+          "description": "used by sign_in only: lets Edge fill its own saved login, then submits",
+          "steps": [
+            {"method": "click_control", "auto_id": "rcmloginuser", "delay": 0.8},
+            {"method": "hotkey", "keys": "down", "delay": 0.8},
+            {"method": "hotkey", "keys": "enter", "delay": 0.8},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "login": {
+          "method": "sequence",
+          "description": "used by sign_in only - do not call directly",
+          "steps": [
+            {"method": "type_text", "auto_id": "rcmloginuser", "field": "username"},
+            {"method": "hotkey", "keys": "escape", "foreground_only": true},
+            {"method": "hotkey", "keys": "tab", "foreground_only": true},
+            {"method": "hotkey", "keys": "ctrl+a", "foreground_only": true},
+            {"method": "type_text", "field": "password", "foreground_only": true},
+            {"method": "type_text", "auto_id": "rcmloginpwd", "field": "password", "ghost_only": true},
+            {"method": "hotkey", "keys": "enter", "delay": 1, "foreground_only": true},
+            {"method": "click_control", "auto_id": "rcmloginsubmit", "delay": 1, "ghost_only": true},
+            {"method": "click_control", "control": "Never", "control_type": "Button", "optional": true, "wait": 6}
+          ]
+        },
+        "compose": {
+          "method": "sequence",
+          "description": "writes a draft, does NOT send. fields: to, subject, body",
+          "steps": [
+            {"method": "click_control", "control_re": ".*Compose$", "control_type": "Button", "delay": 2.5},
+            {"method": "type_text", "field": "to"},
+            {"method": "type_text", "value": ","},
+            {"method": "type_text", "auto_id": "compose-subject", "field": "subject"},
+            {"method": "type_text", "auto_id": "composebody", "field": "body"}
+          ]
+        },
+        "send": {
+          "method": "click_control",
+          "control_re": ".*Send$",
+          "control_type": "Button",
+          "confirm": true,
+          "description": "sends the draft that is currently open"
+        },
+        "open_inbox": {
+          "method": "click_control",
+          "control_re": ".*Mail$",
+          "control_type": "Button",
+          "description": "go to the mail list; then use read_page to see the messages"
+        },
+        "search_mail": {
+          "method": "sequence",
+          "description": "text = words to search for in the mailbox (sender, subject...); then read_page",
+          "steps": [
+            {"method": "type_text", "auto_id": "mailsearchform"},
+            {"method": "hotkey", "keys": "enter", "delay": 2}
+          ]
+        },
+        "open_message": {
+          "method": "click_control",
+          "control_from": "text",
+          "control_type": "Hyperlink",
+          "delay": 2,
+          "description": "text = part of the subject of a message in the list; opens it; then read_page"
+        },
+        "reply": {
+          "method": "click_control",
+          "control_re": ".*Reply$",
+          "control_type": "Button",
+          "delay": 2.5,
+          "description": "start a reply to the open message (then write_reply)"
+        },
+        "write_reply": {
+          "method": "type_text",
+          "auto_id": "composebody",
+          "keep_existing": true,
+          "description": "text = your reply, typed above the quoted original; does NOT send"
+        }
+      }
+    },
+    {
+      "name": "IITD OCS",
+      "aliases": ["OCS", "ocs.iitd.ac.in", "Student Application Portal"],
+      "description": "IIT Delhi student application portal (login has a CAPTCHA the user must solve)",
+      "url": "https://ocs.iitd.ac.in",
+      "window_title": ".*(OCS IIT Delhi|Career Services)",
+      "login_note": "Entered the saved username and password on the OCS login page. It has a CAPTCHA: ask the user to solve it and press Login themselves.",
+      "actions": {
+        "autofill_login": {
+          "method": "sequence",
+          "description": "used by sign_in only: opens the login page and lets Edge fill its saved login; stops before the CAPTCHA",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+l"},
+            {"method": "type_text", "value": "https://ocs.iitd.ac.in/portal/login?role=student"},
+            {"method": "hotkey", "keys": "enter", "delay": 4},
+            {"method": "click_control", "control": "Entry Number or Kerberos", "control_type": "Edit", "delay": 0.8},
+            {"method": "hotkey", "keys": "down", "delay": 0.8},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "login": {
+          "method": "sequence",
+          "description": "used by sign_in only - do not call directly; stops before the CAPTCHA",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+l"},
+            {"method": "type_text", "value": "https://ocs.iitd.ac.in/portal/login?role=student"},
+            {"method": "hotkey", "keys": "enter", "delay": 4},
+            {"method": "type_text", "control": "Entry Number or Kerberos", "control_type": "Edit", "field": "username"},
+            {"method": "hotkey", "keys": "escape"},
+            {"method": "hotkey", "keys": "tab"},
+            {"method": "hotkey", "keys": "ctrl+a"},
+            {"method": "type_text", "field": "password"}
+          ]
+        }
+      }
+    }
+  ]
+}

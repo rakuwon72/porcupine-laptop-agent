@@ -1,0 +1,182 @@
+{
+  "_comment": "Desktop apps the agent may open and control. 'command' = what Windows launches. 'aliases' = other names the user might say. 'window_title' = regex used to find the app's window. 'actions' = what the agent may do inside it. Action methods: hotkey, type_text, click_control, click_relative, read_control, sequence (several steps in a row). 'args' = extra start-up options (the accessibility flag lets the agent see buttons inside web pages). 'confirm': true makes the agent ask you yes/no first. 'same_actions_as' reuses another app's actions.",
+  "apps": [
+    {
+      "name": "Edge",
+      "aliases": ["Microsoft Edge", "Browser", "Chrome", "Google Chrome", "Brave"],
+      "description": "The only web browser used (holds the user's saved logins)",
+      "command": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      "args": "--force-renderer-accessibility",
+      "window_title": ".*Edge",
+      "actions": {
+        "go_to": {
+          "method": "sequence",
+          "description": "text = URL or search words; loads it in the CURRENT tab",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+l"},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "go_to_in_new_tab": {
+          "method": "sequence",
+          "description": "text = URL or search words; opens it in a NEW tab",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+t"},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "find_in_page": {
+          "method": "sequence",
+          "description": "text = words to find on the current page",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+f"},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "new_tab": {"method": "hotkey", "keys": "ctrl+t"},
+        "close_tab": {"method": "hotkey", "keys": "ctrl+w"},
+        "next_tab": {"method": "hotkey", "keys": "ctrl+tab"},
+        "previous_tab": {"method": "hotkey", "keys": "ctrl+shift+tab"},
+        "reload": {"method": "hotkey", "keys": "f5"},
+        "back": {"method": "hotkey", "keys": "alt+left"},
+        "forward": {"method": "hotkey", "keys": "alt+right"},
+        "new_window": {"method": "hotkey", "keys": "ctrl+n"},
+        "incognito_window": {"method": "hotkey", "keys": "ctrl+shift+n"},
+        "close_window": {"method": "hotkey", "keys": "alt+f4", "confirm": true, "description": "closes the whole browser window"}
+      }
+    },
+    {
+      "name": "VS Code",
+      "aliases": ["Visual Studio Code", "Code"],
+      "description": "Code editor",
+      "command": "%LOCALAPPDATA%\\Programs\\Microsoft VS Code\\Code.exe",
+      "window_title": ".*Visual Studio Code",
+      "actions": {
+        "type_text": {"method": "type_text", "description": "type text into the open editor"},
+        "open_folder": {
+          "method": "sequence",
+          "description": "text = full folder path to open as the workspace",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+k ctrl+o", "delay": 1.2},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "quick_open_file": {
+          "method": "sequence",
+          "description": "text = file name to open from the current workspace",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+p"},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "run_vscode_command": {
+          "method": "sequence",
+          "description": "text = a VS Code command name, e.g. 'Format Document'",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+shift+p"},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "run_in_terminal": {
+          "method": "sequence",
+          "confirm": true,
+          "description": "text = a shell command to run in the VS Code terminal",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+`", "delay": 0.8},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "find_in_files": {
+          "method": "sequence",
+          "description": "text = words to search for across the whole workspace",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+shift+f"},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "new_file": {"method": "hotkey", "keys": "ctrl+n"},
+        "save": {"method": "hotkey", "keys": "ctrl+s"},
+        "save_all": {"method": "hotkey", "keys": "ctrl+k s"},
+        "toggle_terminal": {"method": "hotkey", "keys": "ctrl+`"},
+        "toggle_sidebar": {"method": "hotkey", "keys": "ctrl+b"}
+      }
+    },
+    {
+      "name": "Calculator",
+      "description": "Windows calculator",
+      "command": "calc.exe",
+      "window_title": "Calculator",
+      "actions": {
+        "enter_expression": {"method": "type_text", "description": "type an expression such as 245*18="},
+        "clear": {"method": "hotkey", "keys": "esc"},
+        "read_result": {"method": "read_control", "auto_id": "CalculatorResults", "description": "read the number on the display"}
+      }
+    },
+    {
+      "name": "Notepad",
+      "aliases": ["Text Editor", "Text editor"],
+      "description": "Simple text editor",
+      "command": "notepad.exe",
+      "window_title": ".*Notepad",
+      "actions": {
+        "type_text": {"method": "type_text", "description": "type text into the document"},
+        "select_all": {"method": "hotkey", "keys": "ctrl+a"},
+        "new_tab": {"method": "hotkey", "keys": "ctrl+n"},
+        "save": {"method": "hotkey", "keys": "ctrl+s", "description": "opens the Save dialog"},
+        "save_as_name": {
+          "method": "sequence",
+          "confirm": true,
+          "description": "text = full path to save as, e.g. D:\\notes\\todo.txt (may overwrite!)",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+s", "delay": 1.2},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "close": {"method": "hotkey", "keys": "alt+f4", "confirm": true, "description": "close Notepad"}
+      }
+    },
+    {
+      "name": "File Explorer",
+      "aliases": ["Files", "Explorer", "This PC"],
+      "description": "Browse files and folders on this PC",
+      "command": "explorer.exe",
+      "window_title": ".*File Explorer",
+      "actions": {
+        "go_to_folder": {
+          "method": "sequence",
+          "description": "text = full folder path to show",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+l"},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "search_here": {
+          "method": "sequence",
+          "description": "text = words to search for inside the current folder",
+          "steps": [
+            {"method": "hotkey", "keys": "ctrl+e"},
+            {"method": "type_text"},
+            {"method": "hotkey", "keys": "enter"}
+          ]
+        },
+        "new_folder": {"method": "hotkey", "keys": "ctrl+shift+n"},
+        "go_back": {"method": "hotkey", "keys": "alt+left"},
+        "go_up": {"method": "hotkey", "keys": "alt+up"},
+        "select_all": {"method": "hotkey", "keys": "ctrl+a"},
+        "copy": {"method": "hotkey", "keys": "ctrl+c"},
+        "paste": {"method": "hotkey", "keys": "ctrl+v"},
+        "delete_selected": {"method": "hotkey", "keys": "delete", "confirm": true, "description": "sends the selected items to the Recycle Bin"}
+      }
+    }
+  ]
+}

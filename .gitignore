@@ -1,0 +1,31 @@
+# ---- SECRETS and PERSONAL DATA - never publish these ----
+
+# API keys, Telegram token, PIN (copy .env.example to .env and fill it in)
+.env
+.env.*
+!.env.example
+
+# your personal details used for sign-up forms (python add_profile.py)
+profile/
+
+# facts the agent remembers about you, and the saved porcupine position
+memory/
+
+# the activity diary: everything you asked the agent to do
+logs/
+
+# sites and actions the agent learned for you
+manifests/learned.json
+
+# crash reports and logs
+*.log
+mascot_error.log
+
+# ---- Python / tooling ----
+__pycache__/
+*.pyc
+.venv/
+venv/
+.idea/
+.vscode/
+.pytest_cache/
